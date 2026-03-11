@@ -1,0 +1,59 @@
+# Unity generated files and folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Ll]og/
+UserSettings/
+
+# Visual Studio generated files
+.vs/
+*.csproj
+*.sln
+*.user
+
+# Rider IDE
+.idea/
+.idea_modules/
+*.sln.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor files
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Build artifacts
+*.apk
+*.aab
+*.ipa
+*.exe
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+Thumbs.db
+*.bak
+
+# Unity specific
+*.meta
+
+# Test Results
+coverage/
+.coverage
