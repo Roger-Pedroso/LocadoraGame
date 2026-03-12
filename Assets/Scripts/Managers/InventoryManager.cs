@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,8 @@ public class InventoryManager : MonoBehaviour
             return _instance;
         }
     }
+
+    public event Action OnInventoryChanged;
 
     private Dictionary<string, List<GameCopy>> copies = new Dictionary<string, List<GameCopy>>();
     private string saveFile => Path.Combine(Application.persistentDataPath, "inventory.json");
@@ -106,6 +109,7 @@ public class InventoryManager : MonoBehaviour
             var wrapper = new SerializationWrapper { items = GetAllCopies().ToArray() };
             var json = JsonUtility.ToJson(wrapper);
             File.WriteAllText(saveFile, json);
+            OnInventoryChanged?.Invoke();
         }
         catch (System.Exception e)
         {
@@ -129,6 +133,7 @@ public class InventoryManager : MonoBehaviour
                     copies[c.gameId].Add(c);
                 }
             }
+            OnInventoryChanged?.Invoke();
         }
         catch (System.Exception e)
         {

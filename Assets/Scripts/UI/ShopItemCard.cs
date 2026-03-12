@@ -23,7 +23,15 @@ public class ShopItemCard : MonoBehaviour
 
     void OnBuy()
     {
-        // TODO: call ShopManager or PlayerMoney to process purchase
-        Debug.Log($"Buy requested: {gameId} for {price}");
+        if (ShopManager.Instance.BuyGame(gameId))
+        {
+            Debug.Log($"Purchase successful: {gameId}");
+            buyButton.interactable = false;
+        }
+        else
+        {
+            Debug.LogWarning($"Purchase failed: {gameId}");
+            // Optionally show UI feedback (toasts) — TODO
+        }
     }
 }
