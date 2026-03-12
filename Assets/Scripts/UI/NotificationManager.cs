@@ -34,6 +34,9 @@ public class NotificationManager : MonoBehaviour
     {
         queue.Enqueue(message);
         Debug.Log("NOTIFICATION: " + message);
-        // TODO: implement UI toast queue
+        // If a NotificationUI exists in the scene, forward message
+        var ui = Object.FindObjectOfType<NotificationUI>();
+        if (ui != null) ui.Show(message);
+        // Otherwise keep queued for later
     }
 }
