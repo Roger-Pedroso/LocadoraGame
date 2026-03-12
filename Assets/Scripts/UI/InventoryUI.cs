@@ -11,9 +11,20 @@ public class InventoryUI : MonoBehaviour
 
     private List<GameObject> spawned = new List<GameObject>();
 
-    void Start()
+    void OnEnable()
     {
+        InventoryManager.Instance.OnInventoryChanged += RefreshList;
+        InventoryManager.Instance.OnCopyDurabilityChanged += OnCopyDurabilityChanged;
         RefreshList();
+    }
+
+    void OnDisable()
+    {
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnInventoryChanged -= RefreshList;
+            InventoryManager.Instance.OnCopyDurabilityChanged -= OnCopyDurabilityChanged;
+        }
     }
 
     public void RefreshList()
@@ -38,6 +49,12 @@ public class InventoryUI : MonoBehaviour
             }
             spawned.Add(card);
         }
+    }
+
+    void OnCopyDurabilityChanged(GameCopy copy)
+    {
+        // For simplicity, refresh whole list. Could optimize updating single card.
+        RefreshList();
     }
 
     public void ClearList()

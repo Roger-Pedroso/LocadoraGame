@@ -41,10 +41,17 @@ public class RentalManager : MonoBehaviour
 
         // If critical or broken, raise events
         if (copy.durability == 0)
+        {
             OnCopyBroken?.Invoke(gameId, copy.uid);
+            NotificationManager.Instance.Push($"Copy broke: {gameId}");
+        }
         else if (copy.durability < 20)
+        {
             OnCopyCritical?.Invoke(gameId, copy.uid);
+            NotificationManager.Instance.Push($"Copy critical (<20%): {gameId}");
+        }
 
+        NotificationManager.Instance.Push($"Rented {gameId} — durability now {copy.durability}%");
         Debug.Log($"Rented copy {copy.uid} of {gameId}. Durability now {copy.durability}%");
         return true;
     }

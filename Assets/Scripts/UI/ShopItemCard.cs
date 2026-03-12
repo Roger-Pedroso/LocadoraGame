@@ -34,4 +34,17 @@ public class ShopItemCard : MonoBehaviour
             // Optionally show UI feedback (toasts) — TODO
         }
     }
+
+    public void OnRent()
+    {
+        // Sample rent flow: call RentalManager
+        if (RentalManager.Instance.Rent(gameId))
+        {
+            Debug.Log($"Rent successful for {gameId}");
+        }
+        else
+        {
+            Debug.LogWarning($"Rent failed for {gameId}");
+        }
+    }
 }
