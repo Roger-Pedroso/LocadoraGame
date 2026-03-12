@@ -12,6 +12,20 @@ public class GameCopy
     public string uid;
 }
 
+using UnityEngine;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+[System.Serializable]
+public class GameCopy
+{
+    public string gameId;
+    public int durability;
+    public string uid;
+}
+
 public class InventoryManager : MonoBehaviour
 {
     private static InventoryManager _instance;
@@ -30,6 +44,9 @@ public class InventoryManager : MonoBehaviour
     }
 
     public event Action OnInventoryChanged;
+    public event Action<GameCopy> OnCopyDurabilityChanged;
+    public event Action<GameCopy> OnCopyBecameCritical;
+    public event Action<GameCopy> OnCopyBecameBroken;
 
     private Dictionary<string, List<GameCopy>> copies = new Dictionary<string, List<GameCopy>>();
     private string saveFile => Path.Combine(Application.persistentDataPath, "inventory.json");
@@ -55,6 +72,7 @@ public class InventoryManager : MonoBehaviour
         {
             var copy = new GameCopy() { gameId = gameId, durability = 100, uid = System.Guid.NewGuid().ToString() };
             copies[gameId].Add(copy);
+            OnCopyDurabilityChanged?.Invoke(copy);
         }
         Save();
     }
@@ -77,7 +95,7 @@ public class InventoryManager : MonoBehaviour
 
     public int GetAvailableCopies(string gameId)
     {
-        if (copies.TryGetValue(gameId, out var list)) return list.Count;
+        if (copies.TryGetValue(gameId, out var list)) return list.Count(c => c.durability > 0);
         return 0;
     }
 
@@ -88,6 +106,24 @@ public class InventoryManager : MonoBehaviour
         return all;
     }
 
+    public GameCopy RentCopy(string gameId, int wearAmount = 5)
+    {
+        // find a copy with durability > 0
+        if (!copies.TryGetValue(gameId, out var list)) return null;
+        var usable = list.Find(c => c.durability > 0);
+        if (usable == null) return null;
+
+        usable.durability = Mathf.Max(0, usable.durability - wearAmount);
+        OnCopyDurabilityChanged?.Invoke(usable);
+        if (usable.durability == 0)
+            OnCopyBecameBroken?.Invoke(usable);
+        else if (usable.durability < 20)
+            OnCopyBecameCritical?.Invoke(usable);
+
+        Save();
+        return usable;
+    }
+
     public void DamageCopy(string uid, int amount)
     {
         foreach (var kv in copies)
@@ -96,6 +132,9 @@ public class InventoryManager : MonoBehaviour
             if (item != null)
             {
                 item.durability = Mathf.Max(0, item.durability - amount);
+                OnCopyDurabilityChanged?.Invoke(item);
+                if (item.durability == 0) OnCopyBecameBroken?.Invoke(item);
+                else if (item.durability < 20) OnCopyBecameCritical?.Invoke(item);
                 Save();
                 break;
             }
@@ -120,7 +159,11 @@ public class InventoryManager : MonoBehaviour
     void Load()
     {
         copies.Clear();
-        if (!File.Exists(saveFile)) return;
+        if (!File.Exists(saveFile))
+        {
+            OnInventoryChanged?.Invoke();
+            return;
+        }
         try
         {
             var json = File.ReadAllText(saveFile);
