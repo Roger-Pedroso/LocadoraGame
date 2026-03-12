@@ -19,9 +19,17 @@ public class InventoryUI : MonoBehaviour
     public void RefreshList()
     {
         ClearList();
+        // Fallback: try load prefab from Resources if not assigned
+        if (itemCardPrefab == null)
+        {
+            var fallback = Resources.Load<GameObject>("Prefabs/InventoryItemCard");
+            if (fallback != null) itemCardPrefab = fallback;
+        }
+
         var copies = InventoryManager.Instance.GetAllCopies();
         foreach (var copy in copies)
         {
+            if (itemCardPrefab == null) break;
             var card = Instantiate(itemCardPrefab, contentParent);
             var cardComp = card.GetComponent<InventoryItemCard>();
             if (cardComp != null)
